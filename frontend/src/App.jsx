@@ -3,6 +3,26 @@ import { useSelector } from "react-redux";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import Tasks from "./pages/Tasks.jsx";
+import { message } from "antd";
+import CalendarView from "./pages/CalendarView.jsx";
+import Profile from "./pages/Profile.jsx";
+import Dashboard from "./pages/Dashboard.jsx";
+import Kanban from "./pages/Kanban.jsx";
+import { Suspense } from "react";
+import Spinner from "./components/Spinner.jsx";
+import AdminRoute from "./components/AdminRoute.jsx";
+import NotAuthorized from "./Admin/NotAuthorized.jsx";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import AdminDashboard from "./Admin/AdminDashboard.jsx";
+import AdminLogs from "./Admin/AdminLogs.jsx";
+import AdminTasks from "./Admin/AdminTasks.jsx";
+import Users from "./Admin/Users.jsx";
+import AdminLayout from "./Admin/AdminLayout.jsx";
+message.config({
+  top: 10,
+  duration: 2,
+  maxCount: 3
+});
 
 function PrivateRoute({ children }) {
   const { token } = useSelector((state) => state.auth);
@@ -12,17 +32,85 @@ function PrivateRoute({ children }) {
 
 export default function App() {
   return (
+    <Suspense fallback={<Spinner />}>
+
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      
       <Route
-        path="/"
+        path="/tasks"
         element={
           <PrivateRoute>
             <Tasks />
           </PrivateRoute>
         }
       />
+      <Route
+        path="/"
+        element={
+          <PrivateRoute>
+            <Dashboard />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <PrivateRoute>
+            <Profile />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/calendar"
+        element={
+          <PrivateRoute>
+            <CalendarView />
+          </PrivateRoute>
+        }
+      />
+      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="/kanban" element={
+          <PrivateRoute>
+            <Kanban />
+          </PrivateRoute>
+        } />
+        {/* ========== ADMIN ROUTES (proper nested) ========== */}
+
+        {/* <Route
+          path="/admin/dashboard"
+          element={
+            <ProtectedRoute>
+              <AdminRoute>
+                <AdminDashboard />
+              </AdminRoute>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route path="/not-authorized" element={<NotAuthorized />} />
+         */}
+         <Route
+          path="/admin"
+          element={
+            <ProtectedRoute>
+              <AdminRoute>
+                <AdminLayout />
+              </AdminRoute>
+            </ProtectedRoute>
+          }
+        >
+          <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="users" element={<Users />} />
+          <Route path="tasks" element={<AdminTasks />} />
+          <Route path="logs" element={<AdminLogs />} />
+        </Route>
+                {/* Default redirect */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+
     </Routes>
+    </Suspense>
+
   );
 }

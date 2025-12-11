@@ -1,20 +1,25 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Button, Card, Form, Input, Select, Table, Tag } from "antd";
+import {
+  Button,
+  Card,
+  Form,
+  Input,
+  Select,
+  Table,
+  Modal,
+  message,
+  DatePicker,
+} from "antd";
 import Layout from "../components/Layout.jsx";
 import {
   fetchTasks,
   createTask,
   updateTask,
-  deleteTask
+  deleteTask,
 } from "../features/tasks/tasksSlice.js";
-import { FaPlus } from "react-icons/fa";
-
-const statusColors = {
-  pending: "orange",
-  in_progress: "blue",
-  completed: "green"
-};
+import { FaEdit, FaTrash, FaTasks, FaSearch, FaFlag, FaBolt } from "react-icons/fa";
+import { RiApps2AddLine } from "react-icons/ri";
 
 export default function Tasks() {
   const dispatch = useDispatch();
@@ -22,100 +27,398 @@ export default function Tasks() {
 
   const [form] = Form.useForm();
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState(null);
+
+  const [search, setSearch] = useState("");
+  const [filterStatus, setFilterStatus] = useState(null);
+  const [filterPriority, setFilterPriority] = useState(null);
+
+  const [deleteId, setDeleteId] = useState(null);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 6;
+
   useEffect(() => {
     dispatch(fetchTasks());
   }, [dispatch]);
 
-  const onFinish = (values) => {
-    dispatch(createTask(values)).then((res) => {
+  // OPEN ADD MODAL
+  const openAddModal = () => {
+    setEditingTask(null);
+    form.resetFields();
+    setIsModalOpen(true);
+  };
+
+  // OPEN EDIT MODAL
+  const openEditModal = (task) => {
+    setEditingTask(task);
+    form.setFieldsValue(task);
+    setIsModalOpen(true);
+  };
+
+  // CREATE / UPDATE
+  const onFinish = async (values) => {
+    const formattedValues = {
+      ...values,
+      due_date: values.due_date
+        ? values.due_date.format("YYYY-MM-DD")
+        : null,
+    };
+    console.log("Form Values: ", formattedValues);
+    if (editingTask) {
+      const res = await dispatch(
+        updateTask({ id: editingTask.id, data: formattedValues })
+      );
       if (res.type.endsWith("fulfilled")) {
-        form.resetFields();
+        message.success("Task updated");
+        setIsModalOpen(false);
+        setEditingTask(null);
+        console.log("Payload: ", res.payload);
       }
-    });
+    } else {
+      const res = await dispatch(createTask(formattedValues));
+      if (res.type.endsWith("fulfilled")) {
+        message.success("Task created");
+        setIsModalOpen(false);
+        console.log("Task created", res.payload);
+      }
+    }
+    form.resetFields();
   };
 
-  const handleStatusChange = (task, status) => {
-    dispatch(updateTask({ id: task.id, data: { ...task, status } }));
+  // DELETE
+  const confirmDelete = async () => {
+    const res = await dispatch(deleteTask(deleteId));
+    if (res.type.endsWith("fulfilled")) message.success("Task deleted");
+    setDeleteId(null);
   };
 
+  // UI COLORS
+  const statusColors = {
+    pending: " text-yellow-600",
+    in_progress: " text-blue-600",
+    completed: " text-green-600",
+  };
+
+  const filteredTasks = items.filter((task) => {
+    const matchSearch = task.title
+      ?.toLowerCase()
+      .includes(search.toLowerCase());
+    const matchStatus = filterStatus ? task.status === filterStatus : true;
+    const matchPriority = filterPriority
+      ? task.priority === filterPriority
+      : true;
+
+    return matchSearch && matchStatus && matchPriority;
+  });
+
+  // TABLE COLUMNS
   const columns = [
     {
       title: "Title",
-      dataIndex: "title"
+      dataIndex: "title",
+      className: "font-semibold",
+      responsive: ["sm"],
     },
     {
       title: "Description",
-      dataIndex: "description"
+      dataIndex: "description",
+      render: (text) =>
+        text?.length > 40 ? text.slice(0, 40) + "..." : text,
+    },
+//     {
+//   title: "Due Date",
+//   dataIndex: "due_date",
+//   render: (date) => (
+//     <span className="font-semibold text-gray-700">
+//       {date ? date : "N/A"}
+//     </span>
+//   )
+// },
+{
+  title: "Due Date",
+  dataIndex: "due_date",
+  render: (date) => {
+    if (!date) return "N/A";
+    const d = new Date(date);
+    return `${String(d.getDate()).padStart(2, "0")}-${String(
+      d.getMonth() + 1
+    ).padStart(2, "0")}-${d.getFullYear()}`;
+  },
+}
+,
+
+    {
+      title: "Priority",
+      dataIndex: "priority",
+      render: (priority) => (
+        <span
+          className={` text-xs sm:text-sm font-semibold uppercase ${
+            priority === "high"
+              ? " text-red-600"
+              : priority === "medium"
+              ? " text-yellow-600"
+              : " text-green-600"
+          }`}
+        >
+          {priority}
+        </span>
+      ),
     },
     {
       title: "Status",
       dataIndex: "status",
-      render: (status, record) => (
-        <Select
-          value={status}
-          onChange={(value) => handleStatusChange(record, value)}
-          options={[
-            { value: "pending", label: "Pending" },
-            { value: "in_progress", label: "In Progress" },
-            { value: "completed", label: "Completed" }
-          ]}
-        />
-      )
-    },
-    {
-      title: "Created",
-      dataIndex: "created_at"
+      render: (status) => (
+        <span
+          className={`text-xs sm:text-sm font-semibold uppercase ${statusColors[status]}`}
+        >
+          {status.replace("_", " ")}
+        </span>
+      ),
     },
     {
       title: "Actions",
       render: (_, record) => (
-        <Button danger onClick={() => dispatch(deleteTask(record.id))}>
-          Delete
-        </Button>
-      )
-    }
+        <div className="flex gap-3">
+          <Button
+            size="small"
+            icon={<FaEdit />}
+            onClick={() => openEditModal(record)}
+            className="text-slate-600 border-slate-600"
+          />
+
+          <Button
+            size="small"
+            danger
+            icon={<FaTrash />}
+            onClick={() => setDeleteId(record.id)}
+          />
+        </div>
+      ),
+    },
   ];
 
+  // ROW HIGHLIGHT FOR HIGH PRIORITY
+  // const rowClassName = (record) =>
+  //   record.priority === "high" && record.status !== "completed"
+  //     ? " text-black "
+  //     : "";
+
+  const rowClassName = (record) => {
+  const today = new Date().toISOString().split("T")[0];
+
+  if (record.due_date && record.due_date < today && record.status !== "completed") {
+    return "bg-red-100 text-red-600 font-semibold";
+  }
+  return "";
+};
+
+
+ console.log("Filtered Tasks: ", filteredTasks);
   return (
     <Layout>
-      <div className="max-w-4xl mx-auto mt-6 space-y-4">
-        <Card>
-          <Form layout="vertical" form={form} onFinish={onFinish}>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <Form.Item
-                label="Title"
-                name="title"
-                rules={[{ required: true, message: "Please enter title" }]}
-              >
-                <Input placeholder="Task title" />
-              </Form.Item>
-              <Form.Item label="Description" name="description">
-                <Input placeholder="Short description" />
-              </Form.Item>
-              <Form.Item label="Status" name="status" initialValue="pending">
-                <Select
-                  options={[
-                    { value: "pending", label: "Pending" },
-                    { value: "in_progress", label: "In Progress" },
-                    { value: "completed", label: "Completed" }
-                  ]}
-                />
-              </Form.Item>
+      <div className="max-w-6xl mx-auto mt-6 px-3 sm:px-0 space-y-4">
+
+        {/* HEADER */}
+        <Card className="shadow-lg rounded-2xl border-0">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b">
+            <div className="flex items-center gap-3">
+              <FaTasks className="text-3xl text-cyan-800 mb-4" />
+              <div>
+                <h1 className="text-3xl font-bold text-cyan-800">Tasks</h1>
+                <p className="text-cyan-700 mt-0">
+                  Manage your tasks efficiently & stay productive
+                </p>
+              </div>
             </div>
-            <Button type="primary" htmlType="submit" icon={<FaPlus />}>
+
+            <Button
+              type="primary"
+              icon={<RiApps2AddLine />}
+              onClick={openAddModal}
+              className="rounded-md bg-cyan-700 hover:!bg-cyan-600 transition-all flex items-center gap-2 px-4 py-2"
+            >
               Add Task
             </Button>
-          </Form>
-        </Card>
-        <Card title="Your Tasks">
-          <Table
-            rowKey="id"
-            columns={columns}
-            dataSource={items}
-            loading={loading}
-          />
+          </div>
+
+          {/* FILTER BAR */}
+          
+
+<div className="mt-6 bg-cyan-50 p-5 rounded-xl shadow-sm border border-gray-300">
+
+  <div className="flex flex-col md:flex-row items-center gap-6">
+
+    {/* SEARCH */}
+    <div className="flex flex-row w-full md:w-1/3 gap-2">
+      <label className="text-sm font-semibold text-cyan-800 mb-1 flex items-center gap-2">
+        <FaSearch className="text-gray-400" /> Search
+      </label>
+      <Input
+        size="medium"
+        placeholder="Search tasks..."
+        onChange={(e) => setSearch(e.target.value)}
+        className="rounded-lg shadow-sm"
+      />
+    </div>
+
+    {/* STATUS */}
+    <div className="flex flex-row w-full md:w-1/3 gap-2">
+      <label className="text-sm font-semibold text-cyan-800 mb-1 flex items-center gap-2">
+        <FaFlag className="text-blue-400" /> Status
+      </label>
+      <Select
+        size="medium"
+        placeholder="Filter by Status"
+        allowClear
+        onChange={setFilterStatus}
+        className="w-full"
+        options={[
+          { value: "pending", label: "Pending" },
+          { value: "in_progress", label: "In Progress" },
+          { value: "completed", label: "Completed" },
+        ]}
+      />
+    </div>
+
+    {/* PRIORITY */}
+    <div className="flex flex-row w-full md:w-1/3 gap-2">
+      <label className=" font-semibold text-cyan-800 mb-1 flex items-center gap-2">
+        <FaBolt className="text-yellow-400" /> Priority
+      </label>
+      <Select
+        size="medium"
+        placeholder="Filter by Priority"
+        allowClear
+        onChange={setFilterPriority}
+        className="w-full"
+        options={[
+          { value: "low", label: "Low" },
+          { value: "medium", label: "Medium" },
+          { value: "high", label: "High" },
+        ]}
+      />
+    </div>
+
+  </div>
+</div>
+
+
+          {/* TABLE */}
+          <div className="mt-6 overflow-x-auto custom-table-scrollbar">
+            <Table
+              rowKey="id"
+              columns={columns}
+              dataSource={filteredTasks}
+              loading={loading}
+              rowClassName={rowClassName}
+                pagination={{
+                    pageSize: 10,
+                    showSizeChanger: false,
+                    showTotal: (total) => (
+                      <p>
+                        Total <span className="font-semibold">{total}</span>{" "}
+                        tasks
+                      </p>
+                    ),
+                    className: "mx-4 custom-pagination",
+                    responsive: true,
+                    onChange: () => {
+                      window.scrollTo({ top: 250, behavior: "smooth" });
+                    },
+                  }}
+                  // scroll={{ x: 'max-content' }}
+                  className="custom-table"
+                  components={{
+                    header: {
+                      cell: (props) => (
+                        <th
+                          {...props}
+                          style={{
+                            backgroundColor: "#0E7490",
+                            color: "white",
+                            textAlign: "center",
+                            whiteSpace: "nowrap",
+                          }}
+                        />
+                      ),
+                    },
+                    
+                  }}
+            />
+          </div>
         </Card>
       </div>
+
+      {/* ---------------- MODALS ---------------- */}
+
+      <Modal
+        title={<span className="text-2xl flex justify-center font-bold text-cyan-700">
+           {editingTask ? "Edit Task" : "Add Task"} </span>}
+        open={isModalOpen}
+        onCancel={() => setIsModalOpen(false)}
+        okText={editingTask ? "Update" : "Create"}
+        onOk={() => form.submit()}
+          okButtonProps={{
+    className:
+      "bg-cyan-700 hover:!bg-cyan-800 text-white font-semibold px-5 py-2 rounded-lg",
+  }}
+  cancelButtonProps={{
+    className:
+      "border border-gray-400 text-gray-600 hover:bg-gray-100 rounded-lg",
+  }}
+        className="rounded-xl"
+      >
+        <Form layout="vertical" form={form} onFinish={onFinish}>
+          <Form.Item label="Title" name="title" rules={[{ required: true }]}>
+            <Input size="large" placeholder="Task title" />
+          </Form.Item>
+
+          <Form.Item label="Description" name="description">
+            <Input size="large" placeholder="Short description" />
+          </Form.Item>
+          <Form.Item label="Due Date" name="due_date">
+         <DatePicker className="w-full" format="DD-MM-YYYY" />
+          </Form.Item>
+
+          <Form.Item label="Priority" name="priority" rules={[{ required: true }]}>
+            <Select
+              size="large"
+              placeholder="Select priority"
+              options={[
+                { value: "low", label: "Low" },
+                { value: "medium", label: "Medium" },
+                { value: "high", label: "High" },
+              ]}
+            />
+          </Form.Item>
+
+          <Form.Item label="Status" name="status" rules={[{ required: true }]}>
+            <Select
+              size="large"
+              placeholder="Select status"
+              options={[
+                { value: "pending", label: "Pending" },
+                { value: "in_progress", label: "In Progress" },
+                { value: "completed", label: "Completed" },
+              ]}
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* DELETE CONFIRMATION */}
+      <Modal
+        title="Delete Task?"
+        open={!!deleteId}
+        onCancel={() => setDeleteId(null)}
+        okText="Delete"
+        okButtonProps={{ danger: true }}
+        onOk={confirmDelete}
+      >
+        <p>Are you sure you want to delete this task?</p>
+      </Modal>
     </Layout>
   );
 }
