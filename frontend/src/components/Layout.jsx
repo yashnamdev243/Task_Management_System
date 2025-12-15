@@ -219,7 +219,7 @@ const notificationCount = pendingOnly.length + inProgressOnly.length;
   >
     {/* Soft glow ring */}
     {notificationCount > 0 && (
-      <span className="absolute inset-0 rounded-full bg-cyan-400/30 blur-md animate-pulse" />
+      <span className="absolute inset-0 rounded-full bg-purple-400/30 blur-md animate-pulse" />
     )}
 <div  className="
         relative z-10 

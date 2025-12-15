@@ -33,7 +33,30 @@ export const loginUser = createAsyncThunk(
     }
   }
 );
+export const updateProfile = createAsyncThunk(
+  "auth/updateProfile",
+  async ({ name }, { getState, rejectWithValue }) => {
+    try {
+      const token = getState().auth.token;
 
+      const res = await axios.put(
+        `${API_URL}/auth/update-profile`,
+        { name },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      return res.data; // { user: updatedUser }
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || "Profile update failed"
+      );
+    }
+  }
+);
 const authSlice = createSlice({
   name: "auth",
   initialState: {
@@ -86,7 +109,9 @@ const authSlice = createSlice({
         state.error = action.payload;
       });
   }
+  
 });
+
 
 export const { logout, clearLoginFlag } = authSlice.actions;
 export default authSlice.reducer;

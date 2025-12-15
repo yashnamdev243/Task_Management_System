@@ -190,6 +190,7 @@ export default function AdminTasks() {
               dataIndex: "id",
               width: 10,
               sorter: (a, b) => a.id - b.id,
+              border: true,
             },
 
             {

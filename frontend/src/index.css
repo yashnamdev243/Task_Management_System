@@ -170,19 +170,19 @@ body {
 }
 
 .custom-scrollbar2::-webkit-scrollbar-track {
-  background: #646363; 
+  background: #24282F; 
   border-radius: 10px;
 }
 
 .custom-scrollbar2::-webkit-scrollbar-thumb {
-  background: #646363; 
+  background: #24282F; 
   border-radius: 10px;
 }
 
 .custom-scrollbar2::-webkit-scrollbar-thumb:hover {
-  background: #646363; /* Blue-700 */
+  background: #24282F; /* Blue-700 */
 }
 .custom-scrollbar2 {
   scrollbar-width: thin;
-  scrollbar-color: #646363 #e5e7eb;
+  scrollbar-color: #24282F #e5e7eb;
 }

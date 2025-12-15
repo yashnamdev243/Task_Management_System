@@ -12,7 +12,7 @@ import {
 } from "@ant-design/icons";
 import { BiSolidDashboard } from "react-icons/bi";
 import { RiApps2AddLine } from "react-icons/ri";
-import { FaBolt, FaExclamationTriangle } from "react-icons/fa";
+import { FaBolt, FaCheckCircle, FaExclamationTriangle, FaRocket } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { clearLoginFlag } from "../features/auth/authSlice";
@@ -387,7 +387,7 @@ export default function Dashboard() {
             </motion.span>
           </div>
 
-          {/* Progress Bar */}
+          {/* Progress Bar */}a
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -397,7 +397,7 @@ export default function Dashboard() {
               percent={progressPercent}
               showInfo={false}
               strokeColor={{
-                "0%": "#a855f7", // purple
+                "0%": "#2660d4", // purple
                 "100%": "#22c55e", // green
               }}
               trailColor="#e5e7eb"
