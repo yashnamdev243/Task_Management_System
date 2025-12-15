@@ -20,6 +20,7 @@ import {
 } from "../features/tasks/tasksSlice.js";
 import { FaEdit, FaTrash, FaTasks, FaSearch, FaFlag, FaBolt } from "react-icons/fa";
 import { RiApps2AddLine } from "react-icons/ri";
+import dayjs from "dayjs";
 
 export default function Tasks() {
   const dispatch = useDispatch();
@@ -53,7 +54,11 @@ export default function Tasks() {
   // OPEN EDIT MODAL
   const openEditModal = (task) => {
     setEditingTask(task);
-    form.setFieldsValue(task);
+    // form.setFieldsValue(task);
+    form.setFieldsValue({
+    ...task,
+    due_date: task.due_date ? dayjs(task.due_date) : null, 
+  });
     setIsModalOpen(true);
   };
 
@@ -185,7 +190,7 @@ export default function Tasks() {
             size="small"
             icon={<FaEdit />}
             onClick={() => openEditModal(record)}
-            className="text-slate-600 border-slate-600"
+            className="text-gray-800  border-gray-800 hover:!text-gray-700 hover:!border-gray-700"
           />
 
           <Button
@@ -224,10 +229,10 @@ export default function Tasks() {
         <Card className="shadow-lg rounded-2xl border-0">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b">
             <div className="flex items-center gap-3">
-              <FaTasks className="text-3xl text-cyan-800 mb-4" />
+              <FaTasks className="text-3xl text-purple-800 mb-4" />
               <div>
-                <h1 className="text-3xl font-bold text-cyan-800">Tasks</h1>
-                <p className="text-cyan-700 mt-0">
+                <h1 className="text-3xl font-bold text-purple-800">Tasks</h1>
+                <p className="text-gray-700 mt-0">
                   Manage your tasks efficiently & stay productive
                 </p>
               </div>
@@ -237,7 +242,7 @@ export default function Tasks() {
               type="primary"
               icon={<RiApps2AddLine />}
               onClick={openAddModal}
-              className="rounded-md bg-cyan-700 hover:!bg-cyan-600 transition-all flex items-center gap-2 px-4 py-2"
+              className="rounded-md bg-gray-800 hover:!bg-gray-700  transition-all flex items-center gap-2 px-4 py-2"
             >
               Add Task
             </Button>
@@ -246,13 +251,13 @@ export default function Tasks() {
           {/* FILTER BAR */}
           
 
-<div className="mt-6 bg-cyan-50 p-5 rounded-xl shadow-sm border border-gray-300">
+<div className="mt-6 bg-[#FAF5FF] p-5 rounded-xl shadow-sm border border-gray-300">
 
   <div className="flex flex-col md:flex-row items-center gap-6">
 
     {/* SEARCH */}
     <div className="flex flex-row w-full md:w-1/3 gap-2">
-      <label className="text-sm font-semibold text-cyan-800 mb-1 flex items-center gap-2">
+      <label className="text-sm font-semibold text-purple-800 mb-1 flex items-center gap-2">
         <FaSearch className="text-gray-400" /> Search
       </label>
       <Input
@@ -265,7 +270,7 @@ export default function Tasks() {
 
     {/* STATUS */}
     <div className="flex flex-row w-full md:w-1/3 gap-2">
-      <label className="text-sm font-semibold text-cyan-800 mb-1 flex items-center gap-2">
+      <label className="text-sm font-semibold text-purple-800 mb-1 flex items-center gap-2">
         <FaFlag className="text-blue-400" /> Status
       </label>
       <Select
@@ -284,7 +289,7 @@ export default function Tasks() {
 
     {/* PRIORITY */}
     <div className="flex flex-row w-full md:w-1/3 gap-2">
-      <label className=" font-semibold text-cyan-800 mb-1 flex items-center gap-2">
+      <label className=" font-semibold text-purple-800 mb-1 flex items-center gap-2">
         <FaBolt className="text-yellow-400" /> Priority
       </label>
       <Select
@@ -354,7 +359,7 @@ export default function Tasks() {
       {/* ---------------- MODALS ---------------- */}
 
       <Modal
-        title={<span className="text-2xl flex justify-center font-bold text-cyan-700">
+        title={<span className="text-2xl flex justify-center font-bold text-purple-800">
            {editingTask ? "Edit Task" : "Add Task"} </span>}
         open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
@@ -362,7 +367,7 @@ export default function Tasks() {
         onOk={() => form.submit()}
           okButtonProps={{
     className:
-      "bg-cyan-700 hover:!bg-cyan-800 text-white font-semibold px-5 py-2 rounded-lg",
+      "bg-purple-800 hover:!bg-purple-700 text-white font-semibold px-5 py-2 rounded-lg",
   }}
   cancelButtonProps={{
     className:

@@ -40,10 +40,10 @@ export default function Kanban() {
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b">
 
          <div className="flex items-center gap-3">
-                      <FaChalkboardTeacher className="text-3xl text-cyan-800 mb-4" />
+                      <FaChalkboardTeacher className="text-3xl text-purple-800 mb-4" />
                       <div>
-                        <h1 className="text-3xl font-bold text-cyan-800">Kanban Board</h1>
-                        <p className="text-cyan-700 mt-0">
+                        <h1 className="text-3xl font-bold text-purple-800">Kanban Board</h1>
+                        <p className="text-gray-700 mt-0">
                     Stay organized & plan your tasks effectively with your smart calendar.
                   </p>
                       </div>

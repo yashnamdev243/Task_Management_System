@@ -18,10 +18,13 @@ import AdminLogs from "./Admin/AdminLogs.jsx";
 import AdminTasks from "./Admin/AdminTasks.jsx";
 import Users from "./Admin/Users.jsx";
 import AdminLayout from "./Admin/AdminLayout.jsx";
+import Adminprofile from "./Admin/Adminprofile.jsx";
+import Notifications from "./pages/Notifications.jsx";
+
 message.config({
   top: 10,
   duration: 2,
-  maxCount: 3
+  maxCount: 3,
 });
 
 function PrivateRoute({ children }) {
@@ -33,65 +36,60 @@ function PrivateRoute({ children }) {
 export default function App() {
   return (
     <Suspense fallback={<Spinner />}>
+      <Routes>
+        {/* PUBLIC ROUTES */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/notifications" element={<Notifications />} />
 
-    <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      
-      <Route
-        path="/tasks"
-        element={
-          <PrivateRoute>
-            <Tasks />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/"
-        element={
-          <PrivateRoute>
-            <Dashboard />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/profile"
-        element={
-          <PrivateRoute>
-            <Profile />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/calendar"
-        element={
-          <PrivateRoute>
-            <CalendarView />
-          </PrivateRoute>
-        }
-      />
-      <Route path="*" element={<Navigate to="/" replace />} />
-      <Route path="/kanban" element={
-          <PrivateRoute>
-            <Kanban />
-          </PrivateRoute>
-        } />
-        {/* ========== ADMIN ROUTES (proper nested) ========== */}
-
-        {/* <Route
-          path="/admin/dashboard"
+        {/* PROTECTED ROUTES */}
+        <Route
+          path="/"
           element={
-            <ProtectedRoute>
-              <AdminRoute>
-                <AdminDashboard />
-              </AdminRoute>
-            </ProtectedRoute>
+            <PrivateRoute>
+              <Dashboard />
+            </PrivateRoute>
           }
         />
 
-        <Route path="/not-authorized" element={<NotAuthorized />} />
-         */}
-         <Route
+        <Route
+          path="/tasks"
+          element={
+            <PrivateRoute>
+              <Tasks />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/profile"
+          element={
+            <PrivateRoute>
+              <Profile />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/calendar"
+          element={
+            <PrivateRoute>
+              <CalendarView />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/kanban"
+          element={
+            <PrivateRoute>
+              <Kanban />
+            </PrivateRoute>
+          }
+        />
+
+        {/* ADMIN ROUTES */}
+        <Route
           path="/admin"
           element={
             <ProtectedRoute>
@@ -105,12 +103,12 @@ export default function App() {
           <Route path="users" element={<Users />} />
           <Route path="tasks" element={<AdminTasks />} />
           <Route path="logs" element={<AdminLogs />} />
+          <Route path="profile" element={<Adminprofile />} />
         </Route>
-                {/* Default redirect */}
+
+        {/* ❗ ONLY ONE CATCH-ALL ROUTE */}
         <Route path="*" element={<Navigate to="/" replace />} />
-
-    </Routes>
+      </Routes>
     </Suspense>
-
   );
 }

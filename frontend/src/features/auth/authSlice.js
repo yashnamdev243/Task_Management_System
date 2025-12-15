@@ -40,15 +40,21 @@ const authSlice = createSlice({
     user: userFromStorage,
     token: tokenFromStorage,
     loading: false,
-    error: null
+    error: null,
+    justLoggedIn: false
   },
   reducers: {
     logout(state) {
       state.user = null;
       state.token = null;
+      state.loginNotified = false; 
       localStorage.removeItem("user");
       localStorage.removeItem("token");
-    }
+    },
+      // lock notification after first show
+    clearLoginFlag(state) {
+      state.justLoggedIn = false;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -71,6 +77,7 @@ const authSlice = createSlice({
         state.loading = false;
         state.user = action.payload.user;
         state.token = action.payload.token;
+        state.justLoggedIn = true;
         localStorage.setItem("user", JSON.stringify(action.payload.user));
         localStorage.setItem("token", action.payload.token);
       })
@@ -81,5 +88,5 @@ const authSlice = createSlice({
   }
 });
 
-export const { logout } = authSlice.actions;
+export const { logout, clearLoginFlag } = authSlice.actions;
 export default authSlice.reducer;

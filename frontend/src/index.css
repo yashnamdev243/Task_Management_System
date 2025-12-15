@@ -38,7 +38,7 @@ body {
 /* Style pagination items */
 .custom-pagination .ant-pagination-item {
   border-radius: 30%;
-  border: 1px solid #274B6B;
+  border: 1px solid #111827;
   color: #1890ff;
   min-width: 30px;
   height: 30px;
@@ -52,9 +52,9 @@ body {
 }
 
 .custom-pagination .ant-pagination-item-active{
-  background-color: #274B6B;
+  background-color: #111827;
   color: white !important;
-  border-color: #274B6B;
+  border-color: #111827;
 }
 .custom-pagination .ant-pagination-item-active a{
   color: white !important;
@@ -101,7 +101,7 @@ body {
 
 /* TABLE HEADER STYLE */
 .custom-table .ant-table-thead > tr > th {
-  background-color: #0E7490 !important; /* slate-800 */
+  background-color: #111827 !important; /* slate-800 */
   color: white !important;
   font-weight: bold !important;
   padding: 14px !important;
@@ -117,7 +117,7 @@ body {
 
 /* HOVER EFFECT */
 .custom-table .ant-table-tbody > tr:hover > td {
-  background-color: #dcf9fb !important;
+  background-color: #f2eaf9 !important;
   transition: 0.2s ease-in-out;
 }
 
@@ -152,13 +152,37 @@ body {
 }
 /* Collapse button wrapper */
 .ant-layout-sider-trigger {
-  background-color: #0e7490 !important;  /* cyan-700 */
+  background-color: #111827 !important;  /* cyan-700 */
   color: white !important;
   font-size: 18px !important;
 }
 
 /* Hover effect */
 .ant-layout-sider-trigger:hover {
-  background-color: #15819f !important; /* cyan-800 */
+  background-color: #111827 !important; /* cyan-800 */
   color: white !important;
+}
+
+
+/*Pending Custom Scrollbar */
+.custom-scrollbar2::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar2::-webkit-scrollbar-track {
+  background: #646363; 
+  border-radius: 10px;
+}
+
+.custom-scrollbar2::-webkit-scrollbar-thumb {
+  background: #646363; 
+  border-radius: 10px;
+}
+
+.custom-scrollbar2::-webkit-scrollbar-thumb:hover {
+  background: #646363; /* Blue-700 */
+}
+.custom-scrollbar2 {
+  scrollbar-width: thin;
+  scrollbar-color: #646363 #e5e7eb;
 }

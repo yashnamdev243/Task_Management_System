@@ -47,7 +47,7 @@ export default function AdminLayout() {
           label: <span>Profile</span>,
           icon: <UserOutlined />,
           className: "!text-blue-600 hover:!bg-blue-100 rounded-md",
-            onClick: () => navigate("/profile"),
+            onClick: () => navigate("/admin/profile"),
         },
         {
           key: "2",
